@@ -11,7 +11,7 @@ import (
 	"net/url"
 
 	"github.com/nu7hatch/gouuid"
-	"github.com/tsuru/planb/log"
+	"github.com/opencoff/planb/log"
 )
 
 // SNIReverseProxy is public struct for SNI reverseproxy

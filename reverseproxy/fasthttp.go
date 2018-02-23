@@ -18,7 +18,7 @@ import (
 	"time"
 
 	"github.com/nu7hatch/gouuid"
-	"github.com/tsuru/planb/log"
+	"github.com/opencoff/planb/log"
 	"github.com/valyala/fasthttp"
 )
 

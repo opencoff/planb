@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	"github.com/tsuru/planb/log"
-	"github.com/tsuru/planb/reverseproxy"
+	"github.com/opencoff/planb/log"
+	"github.com/opencoff/planb/reverseproxy"
 	"gopkg.in/check.v1"
 )
 

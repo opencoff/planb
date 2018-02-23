@@ -12,9 +12,9 @@ import (
 
 	"github.com/hashicorp/golang-lru"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/tsuru/planb/backend"
-	"github.com/tsuru/planb/log"
-	"github.com/tsuru/planb/reverseproxy"
+	"github.com/opencoff/planb/backend"
+	"github.com/opencoff/planb/log"
+	"github.com/opencoff/planb/reverseproxy"
 )
 
 var (

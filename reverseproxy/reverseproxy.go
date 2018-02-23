@@ -10,7 +10,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/tsuru/planb/log"
+	"github.com/opencoff/planb/log"
 )
 
 var (
