@@ -4,3 +4,7 @@ planb
 *.test
 stdout
 dist/
+*~
+.??*.sw?
+bin/
+github.com/
