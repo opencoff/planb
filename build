@@ -94,7 +94,6 @@ hosttool() {
 
     # build it and stash it in the hostdir
     echo "Building tool $tool from $src .."
-    go env
     $e go get -d -v   $src || exit 1
     $e go build -o $p $src || exit 1
     return 0
