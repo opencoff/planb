@@ -95,7 +95,7 @@
   branch = "master"
   name = "github.com/opencoff/cloudly"
   packages = ["authverify"]
-  revision = "1a5131cd613ad747a4b20ae901c772e91ac44512"
+  revision = "11594ed4a9648a39b1aa18122c544a662513cc31"
 
 [[projects]]
   name = "github.com/prometheus/client_golang"

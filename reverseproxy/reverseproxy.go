@@ -46,7 +46,7 @@ type ReverseProxyConfig struct {
 	WriteTimeout      time.Duration
 	IdleTimeout       time.Duration
 	HeaderPrefix      string
-	AuthVerify        *vrfy.Verifier
+	AuthVerify        vrfy.AuthVerifier
 }
 
 type RequestData struct {
