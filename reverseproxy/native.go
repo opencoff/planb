@@ -185,6 +185,15 @@ func (rp *NativeReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Reques
 			fastHeaderSet(req.Header, rp.rIdHeader, unparsedID.String())
 		}
 	}
+
+	if rp.AuthVerify != nil {
+		newreq, err := rp.AuthVerify.Verify(req)
+		if err != nil {
+			http.Error(rw, "", http.StatusUnauthorized)
+			return
+		}
+		req = newreq
+	}
 	upgrade := fastHeaderGet(req.Header, "Upgrade")
 	if upgrade != "" && strings.ToLower(upgrade) == "websocket" {
 		reqData, err := rp.serveWebsocket(rw, req)
