@@ -123,7 +123,7 @@ func (s *S) TestRoundTrip(c *check.C) {
 	defer ts.Close()
 	router := &recoderRouter{dst: ts.URL}
 	rp := s.factory()
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "X-RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -196,7 +196,7 @@ func (s *S) TestRoundTripForwarded(c *check.C) {
 	defer ts.Close()
 	router := &recoderRouter{dst: ts.URL}
 	rp := s.factory()
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "X-RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -272,7 +272,7 @@ func (s *S) TestRoundTripRedirect(c *check.C) {
 	defer ts.Close()
 	router := &recoderRouter{dst: ts.URL}
 	rp := s.factory()
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "X-RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -328,7 +328,7 @@ func (s *S) TestRoundTripWithExistingRequestID(c *check.C) {
 	defer ts.Close()
 	router := &recoderRouter{dst: ts.URL}
 	rp := s.factory()
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "X-Rid"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: ""})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -554,7 +554,7 @@ func (s *S) TestRoundTripWithError(c *check.C) {
 func (s *S) TestRoundTripWithErrNoRegisteredBackends(c *check.C) {
 	router := &recoderRouter{errChoose: ErrNoRegisteredBackends}
 	rp := s.factory()
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -586,7 +586,7 @@ func (s *S) TestRoundTripWithErrNoRegisteredBackends(c *check.C) {
 func (s *S) TestRoundTripWithErrAllBackendsDead(c *check.C) {
 	router := &recoderRouter{errChoose: ErrAllBackendsDead}
 	rp := s.factory()
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -618,7 +618,7 @@ func (s *S) TestRoundTripWithErrAllBackendsDead(c *check.C) {
 func (s *S) TestRoundTripWithErrOther(c *check.C) {
 	router := &recoderRouter{errChoose: errors.New("other error")}
 	rp := s.factory()
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -928,7 +928,7 @@ func (s *S) TestRoundTripTimeout(c *check.C) {
 	defer ts.Close()
 	defer close(blk)
 	router := &recoderRouter{dst: ts.URL}
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestTimeout: time.Second, RequestIDHeader: "RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestTimeout: time.Second, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -943,7 +943,7 @@ func (s *S) TestRoundTripTimeout(c *check.C) {
 	c.Assert(rsp.StatusCode, check.Equals, 503)
 	c.Assert(router.resultIsDead, check.Equals, false)
 	log.ErrorLogger.Stop()
-	c.Assert(s.logBuffer.String(), check.Matches, fmt.Sprintf(`(?s)ERROR in myhost.com -> %s - / - RID:.+? - request timeout after .+:.*`, ts.URL))
+	c.Assert(s.logBuffer.String(), check.Matches, fmt.Sprintf(`(?s)ERROR in myhost.com -> %s - / - X-RID:.+? - request timeout after .+:.*`, ts.URL))
 }
 
 func (s *S) TestRoundTripTimeoutDial(c *check.C) {
@@ -953,7 +953,7 @@ func (s *S) TestRoundTripTimeoutDial(c *check.C) {
 	}
 	// Reserved TEST-NET IP should cause
 	router := &recoderRouter{dst: "http://192.0.2.1:49151"}
-	err := rp.Initialize(ReverseProxyConfig{Router: router, DialTimeout: time.Second, RequestTimeout: 10 * time.Second, RequestIDHeader: "RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, DialTimeout: time.Second, RequestTimeout: 10 * time.Second, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -968,7 +968,7 @@ func (s *S) TestRoundTripTimeoutDial(c *check.C) {
 	c.Assert(rsp.StatusCode, check.Equals, 503)
 	c.Assert(router.resultIsDead, check.Equals, true)
 	log.ErrorLogger.Stop()
-	c.Assert(s.logBuffer.String(), check.Matches, `(?s)ERROR in myhost.com -> http://192.0.2.1:49151 - / - RID:.+? - dial timeout after .+:.*`)
+	c.Assert(s.logBuffer.String(), check.Matches, `(?s)ERROR in myhost.com -> http://192.0.2.1:49151 - / - X-RID:.+? - dial timeout after .+:.*`)
 }
 
 func waitFor(fn func()) chan struct{} {
@@ -983,7 +983,7 @@ func waitFor(fn func()) chan struct{} {
 func (s *S) TestRoundTripWebSocket(c *check.C) {
 	rp := s.factory()
 	srv := httptest.NewServer(websocket.Handler(func(conn *websocket.Conn) {
-		c.Assert(conn.Request().Header.Get("RID"), check.Not(check.Equals), "")
+		c.Assert(conn.Request().Header.Get("X-RID"), check.Not(check.Equals), "")
 		conn.Write([]byte("server-" + conn.Request().URL.Path))
 		buf := make([]byte, 5)
 		conn.Read(buf)
@@ -991,7 +991,7 @@ func (s *S) TestRoundTripWebSocket(c *check.C) {
 	}))
 	defer srv.Close()
 	router := &recoderRouter{dst: srv.URL}
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)

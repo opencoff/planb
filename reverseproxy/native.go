@@ -72,9 +72,10 @@ func init() {
 type NativeReverseProxy struct {
 	http.Transport
 	ReverseProxyConfig
-	servers []*http.Server
-	rp      *httputil.ReverseProxy
-	dialer  *net.Dialer
+	servers   []*http.Server
+	rp        *httputil.ReverseProxy
+	rIdHeader string
+	dialer    *net.Dialer
 }
 
 type fixedReadCloser struct {
@@ -109,6 +110,9 @@ func (rp *NativeReverseProxy) Initialize(rpConfig ReverseProxyConfig) error {
 	rp.ReverseProxyConfig = rpConfig
 	rp.servers = make([]*http.Server, 0)
 
+	if len(rp.HeaderPrefix) > 0 {
+		rp.rIdHeader = fmt.Sprintf("%s-RID", rp.HeaderPrefix)
+	}
 	rp.dialer = &net.Dialer{
 		Timeout:   rp.DialTimeout,
 		KeepAlive: 30 * time.Second,
@@ -160,7 +164,7 @@ func (rp *NativeReverseProxy) Stop() {
 }
 
 func (rp *NativeReverseProxy) ridString(req *http.Request) string {
-	return rp.RequestIDHeader + ":" + fastHeaderGet(req.Header, rp.RequestIDHeader)
+	return rp.rIdHeader + ":" + fastHeaderGet(req.Header, rp.rIdHeader)
 }
 
 func (rp *NativeReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -175,10 +179,10 @@ func (rp *NativeReverseProxy) ServeHTTP(rw http.ResponseWriter, req *http.Reques
 		rw.Write(okResponse)
 		return
 	}
-	if rp.RequestIDHeader != "" && fastHeaderGet(req.Header, rp.RequestIDHeader) == "" {
+	if rp.rIdHeader != "" && fastHeaderGet(req.Header, rp.rIdHeader) == "" {
 		unparsedID, err := uuid.NewV4()
 		if err == nil {
-			fastHeaderSet(req.Header, rp.RequestIDHeader, unparsedID.String())
+			fastHeaderSet(req.Header, rp.rIdHeader, unparsedID.String())
 		}
 	}
 	upgrade := fastHeaderGet(req.Header, "Upgrade")
@@ -274,8 +278,8 @@ func (rp *NativeReverseProxy) doResponse(req *http.Request, reqData *RequestData
 			Proto:           req.Proto,
 			Referer:         fastHeaderGet(req.Header, "Referer"),
 			UserAgent:       fastHeaderGet(req.Header, "User-Agent"),
-			RequestIDHeader: rp.RequestIDHeader,
-			RequestID:       fastHeaderGet(req.Header, rp.RequestIDHeader),
+			RequestIDHeader: rp.rIdHeader,
+			RequestID:       fastHeaderGet(req.Header, rp.rIdHeader),
 			StatusCode:      rsp.StatusCode,
 			ContentLength:   rsp.ContentLength,
 			ForwardedFor:    originalForwardedFor,

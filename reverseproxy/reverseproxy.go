@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/opencoff/planb/log"
+	vrfy "github.com/opencoff/cloudly/authverify"
 )
 
 var (
@@ -44,7 +45,8 @@ type ReverseProxyConfig struct {
 	ReadHeaderTimeout time.Duration
 	WriteTimeout      time.Duration
 	IdleTimeout       time.Duration
-	RequestIDHeader   string
+	HeaderPrefix      string
+	AuthVerify        *vrfy.Verifier
 }
 
 type RequestData struct {

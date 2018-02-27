@@ -38,7 +38,7 @@ func (s *SNI) TestRoundTripSNI(c *check.C) {
 	defer ts.Close()
 	router := &recoderRouter{dst: ts.URL}
 	rp := &SNIReverseProxy{}
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "X-RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)
@@ -87,7 +87,7 @@ func (s *SNI) TestRoundTripSNIWithoutHostname(c *check.C) {
 	defer ts.Close()
 	router := &recoderRouter{dst: ts.URL}
 	rp := &SNIReverseProxy{}
-	err := rp.Initialize(ReverseProxyConfig{Router: router, RequestIDHeader: "X-RID"})
+	err := rp.Initialize(ReverseProxyConfig{Router: router, HeaderPrefix: "X"})
 	c.Assert(err, check.IsNil)
 	addr, listener := getFreeListener()
 	go rp.Listen(listener, nil)

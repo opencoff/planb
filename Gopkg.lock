@@ -92,6 +92,12 @@
   revision = "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/opencoff/cloudly"
+  packages = ["authverify"]
+  revision = "1a5131cd613ad747a4b20ae901c772e91ac44512"
+
+[[projects]]
   name = "github.com/prometheus/client_golang"
   packages = [
     "prometheus",
@@ -146,6 +152,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0ae2b7f7f6b78831de81a2eb7140bfecac7dff61753e4a3bb9fe43d2fd853e18"
+  inputs-digest = "6254d1356b241231745fd420bff668bbd2f8fbe187a0c675c578eb1d2ae020e8"
   solver-name = "gps-cdcl"
   solver-version = 1

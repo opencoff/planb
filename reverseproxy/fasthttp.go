@@ -27,6 +27,7 @@ type FastReverseProxy struct {
 	server    *fasthttp.Server
 	dialFunc  func(addr string) (net.Conn, error)
 	mu        sync.Mutex
+	rIdHeader string
 	clientMap map[string]*fasthttp.HostClient
 }
 
@@ -40,6 +41,9 @@ func (rp *FastReverseProxy) Initialize(rpConfig ReverseProxyConfig) error {
 	rp.ReverseProxyConfig = rpConfig
 	rp.server = &fasthttp.Server{
 		Handler: rp.handler,
+	}
+	if len(rp.HeaderPrefix) > 0 {
+		rp.rIdHeader = fmt.Sprintf("%s-RID", rp.HeaderPrefix)
 	}
 	rp.dialFunc = dialWithTimeout(rp.DialTimeout)
 	rp.clientMap = make(map[string]*fasthttp.HostClient)
@@ -141,7 +145,7 @@ func (rp *FastReverseProxy) chooseBackend(host string) (*RequestData, string, st
 }
 
 func (rp *FastReverseProxy) ridString(req *fasthttp.Request) string {
-	return rp.RequestIDHeader + ":" + string(req.Header.Peek(rp.RequestIDHeader))
+	return rp.rIdHeader + ":" + string(req.Header.Peek(rp.rIdHeader))
 }
 
 func (rp *FastReverseProxy) handler(ctx *fasthttp.RequestCtx) {
@@ -160,11 +164,11 @@ func (rp *FastReverseProxy) handler(ctx *fasthttp.RequestCtx) {
 		resp.SetBody(okResponse)
 		return
 	}
-	if rp.RequestIDHeader != "" && len(req.Header.Peek(rp.RequestIDHeader)) == 0 {
+	if rp.rIdHeader != "" && len(req.Header.Peek(rp.rIdHeader)) == 0 {
 		var unparsedID *uuid.UUID
 		unparsedID, err := uuid.NewV4()
 		if err == nil {
-			req.Header.Set(rp.RequestIDHeader, unparsedID.String())
+			req.Header.Set(rp.rIdHeader, unparsedID.String())
 		}
 	}
 	originalForwardedFor := string(req.Header.Peek("X-Forwarded-For"))
@@ -193,8 +197,8 @@ func (rp *FastReverseProxy) handler(ctx *fasthttp.RequestCtx) {
 			Proto:           proto,
 			Referer:         string(ctx.Referer()),
 			UserAgent:       string(ctx.UserAgent()),
-			RequestIDHeader: rp.RequestIDHeader,
-			RequestID:       string(req.Header.Peek(rp.RequestIDHeader)),
+			RequestIDHeader: rp.rIdHeader,
+			RequestID:       string(req.Header.Peek(rp.rIdHeader)),
 			StatusCode:      resp.StatusCode(),
 			ContentLength:   int64(resp.Header.ContentLength()),
 			ForwardedFor:    originalForwardedFor,
