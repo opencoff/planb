@@ -335,8 +335,8 @@ The value 'none' can be used to disable access logs.`,
 			Usage: "Time in milliseconds to flush the proxied request",
 		},
 		cli.StringFlag{
-			Name:  "request-id-header",
-			Usage: "Header to enable message tracking",
+			Name:  "header-prefix",
+			Usage: "HTTP header prefix for headers sent to backend (e.g., request-id etc.)",
 		},
 		cli.BoolFlag{
 			Name: "active-healthcheck",
@@ -351,11 +351,18 @@ The value 'none' can be used to disable access logs.`,
 			Usage: "Enable caching backend results for 2 seconds. This may cause temporary inconsistencies.",
 		},
 	}
-	app.Version = "0.1.15"
+	app.Version = fmt.Sprintf("%s; (%s, %s)", ProductVersion, RepoVersion, Buildtime)
 	app.Name = "planb"
 	app.Usage = "http and websockets reverse proxy"
 	app.Action = runServer
-	app.Author = "tsuru team"
+	app.Author = "cloudly team"
 	app.Email = "https://github.com/opencoff/planb"
 	app.Run(os.Args)
 }
+
+
+var   (
+	RepoVersion    = "-unknown-"
+	ProductVersion = "0.0.0"
+	Buildtime      = "-unknown-"
+)

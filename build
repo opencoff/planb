@@ -162,6 +162,12 @@ for c in $cpulist; do
     for x in $a; do cpus[$x]=$c; done
 done
 
+# if there is a 'version' file, use it.
+# but let it be overridden by command line flags
+if [ -f $PWD/version ]; then
+    Prodver=$(cat $PWD/version)
+fi
+
 
 Runtests=0
 doinit=0
